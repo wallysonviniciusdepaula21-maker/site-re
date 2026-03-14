@@ -15,7 +15,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent))
 
 # Import routes
-from routes import cpf_routes, darf_routes, pix_routes
+from routes import cpf_routes, darf_routes, pix_routes, chat_routes, document_routes
 
 
 ROOT_DIR = Path(__file__).parent
@@ -49,6 +49,10 @@ class StatusCheckCreate(BaseModel):
 async def root():
     return {"message": "Hello World"}
 
+@api_router.get("/health")
+async def health_check():
+    return {"status": "healthy", "service": "JuristaAI"}
+
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
     status_dict = input.model_dump()
@@ -77,6 +81,8 @@ async def get_status_checks():
 api_router.include_router(cpf_routes.router)
 api_router.include_router(darf_routes.router)
 api_router.include_router(pix_routes.router)
+api_router.include_router(chat_routes.router)
+api_router.include_router(document_routes.router)
 
 # Include the router in the main app
 app.include_router(api_router)

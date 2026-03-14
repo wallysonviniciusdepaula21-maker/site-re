@@ -7,6 +7,8 @@ import Resultado from './pages/Resultado';
 import Darf from './pages/Darf';
 import LoadingPix from './pages/LoadingPix';
 import PagamentoPix from './pages/PagamentoPix';
+import Chat from './pages/Chat';
+import Documentos from './pages/Documentos';
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function App() {
           <Route path="/darf" element={<Darf />} />
           <Route path="/loading-pix" element={<LoadingPix />} />
           <Route path="/pagamento-pix" element={<PagamentoPix />} />
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/documentos" element={<Documentos />} />
         </Routes>
       </BrowserRouter>
     </div>

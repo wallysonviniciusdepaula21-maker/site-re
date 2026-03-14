@@ -27,3 +27,44 @@ export const pixService = {
     return response.data;
   }
 };
+
+export const chatService = {
+  ask: async (question, maxSources = 5) => {
+    const response = await axios.post(`${API}/chat`, { question, max_sources: maxSources });
+    return response.data;
+  },
+  getStats: async () => {
+    const response = await axios.get(`${API}/chat/stats`);
+    return response.data;
+  }
+};
+
+export const documentService = {
+  upload: async (formData) => {
+    const response = await axios.post(`${API}/documents/upload`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
+  },
+  list: async (status) => {
+    const params = status ? { status } : {};
+    const response = await axios.get(`${API}/documents`, { params });
+    return response.data;
+  },
+  get: async (docId) => {
+    const response = await axios.get(`${API}/documents/${docId}`);
+    return response.data;
+  },
+  delete: async (docId) => {
+    const response = await axios.delete(`${API}/documents/${docId}`);
+    return response.data;
+  },
+  getSubjects: async () => {
+    const response = await axios.get(`${API}/documents/subjects`);
+    return response.data;
+  },
+  getStats: async () => {
+    const response = await axios.get(`${API}/documents/stats`);
+    return response.data;
+  }
+};
