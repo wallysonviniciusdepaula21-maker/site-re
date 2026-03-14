@@ -61,7 +61,7 @@ const PagamentoPix = () => {
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         let { hours, minutes, seconds } = prev;
-        
+
         if (seconds > 0) {
           seconds--;
         } else if (minutes > 0) {
@@ -72,7 +72,7 @@ const PagamentoPix = () => {
           minutes = 59;
           seconds = 59;
         }
-        
+
         return { hours, minutes, seconds };
       });
     }, 1000);
@@ -80,7 +80,6 @@ const PagamentoPix = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Verificar pagamento a cada 30 segundos
   useEffect(() => {
     if (!paymentData) return;
 
@@ -89,7 +88,7 @@ const PagamentoPix = () => {
         const result = await pixService.verificar(paymentData.protocol);
         if (result.success && result.data.status === 'PAGO') {
           toast({
-            title: "✅ Pagamento Confirmado!",
+            title: "Pagamento Confirmado!",
             description: "Seu pagamento foi processado com sucesso.",
           });
           setPaymentData(prev => ({ ...prev, status: 'PAGO' }));
@@ -105,7 +104,7 @@ const PagamentoPix = () => {
 
   const handleCopyPix = () => {
     if (!paymentData) return;
-    
+
     navigator.clipboard.writeText(paymentData.pixCode).then(() => {
       setCopied(true);
       toast({
@@ -131,20 +130,20 @@ const PagamentoPix = () => {
 
   if (loading || !paymentData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600" />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100/50 to-slate-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-govbr-blue" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-100/50 to-slate-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800">
       <GovBrHeader />
 
       {/* Banner com Timer */}
-      <div className="bg-red-600 text-white py-4 px-4 text-center font-bold text-lg flex items-center justify-center space-x-2">
+      <div className="bg-govbr-red text-white py-4 px-4 text-center font-bold text-lg flex items-center justify-center space-x-2">
         <Clock className="w-6 h-6" />
-        <span>
+        <span className="tabular-nums">
           Tempo restante para pagamento: {String(timeLeft.hours).padStart(2, '0')}:
           {String(timeLeft.minutes).padStart(2, '0')}:
           {String(timeLeft.seconds).padStart(2, '0')}
@@ -152,54 +151,54 @@ const PagamentoPix = () => {
       </div>
 
       <main className="container mx-auto px-4 py-8 max-w-4xl">
-        {/* Card de Informações Resumidas */}
-        <Card className="mb-6 shadow-lg bg-white">
+        {/* Info Card */}
+        <Card className="mb-6 shadow-lg bg-white dark:bg-gray-800 border-slate-200 dark:border-gray-700 animate-fade-in-up">
           <div className="p-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Nome:</p>
-                <p className="font-semibold text-gray-800">{paymentData.name}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Nome:</p>
+                <p className="font-semibold text-gray-800 dark:text-gray-200">{paymentData.name}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">CPF:</p>
-                <p className="font-semibold text-gray-800">{paymentData.cpf}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">CPF:</p>
+                <p className="font-semibold text-gray-800 dark:text-gray-200">{paymentData.cpf}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">Protocolo:</p>
-                <p className="font-semibold text-blue-600">{paymentData.protocol}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Protocolo:</p>
+                <p className="font-semibold text-govbr-blue">{paymentData.protocol}</p>
               </div>
               <div className="text-right">
-                <p className="text-sm text-gray-600 mb-1">Valor:</p>
-                <p className="text-2xl font-bold text-green-600">{formatCurrency(paymentData.value)}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Valor:</p>
+                <p className="text-2xl font-bold text-govbr-green">{formatCurrency(paymentData.value)}</p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t">
+            <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t dark:border-gray-700">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Vencimento:</p>
-                <p className="font-bold text-red-600">{paymentData.dueDate}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Vencimento:</p>
+                <p className="font-bold text-govbr-red">{paymentData.dueDate}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600 mb-1">Status:</p>
-                <p className="font-bold text-orange-600">{paymentData.status}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Status:</p>
+                <p className="font-bold text-govbr-orange">{paymentData.status}</p>
               </div>
             </div>
           </div>
         </Card>
 
-        {/* Card Principal - Pagamento via PIX */}
-        <Card className="mb-6 shadow-xl bg-white">
+        {/* PIX Card */}
+        <Card className="mb-6 shadow-xl bg-white dark:bg-gray-800 border-slate-200 dark:border-gray-700 animate-fade-in-up">
           <div className="p-8">
-            <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+            <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100 mb-6">
               Pagamento via PIX
             </h2>
 
-            <p className="text-center text-gray-600 mb-6">
+            <p className="text-center text-gray-600 dark:text-gray-400 mb-6">
               Escaneie o QR Code ou copie o código PIX abaixo
             </p>
 
             {/* QR Code */}
             <div className="flex justify-center mb-6">
-              <div className="bg-white p-4 rounded-lg border-4 border-blue-600 shadow-lg">
+              <div className="bg-white p-4 rounded-lg border-4 border-govbr-blue shadow-lg">
                 <img
                   src={paymentData.qrCodeUrl}
                   alt="QR Code PIX"
@@ -210,7 +209,7 @@ const PagamentoPix = () => {
 
             {/* Código PIX */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Código PIX:
               </label>
               <div className="flex space-x-2">
@@ -218,18 +217,18 @@ const PagamentoPix = () => {
                   type="text"
                   value={paymentData.pixCode}
                   readOnly
-                  className="flex-1 p-3 border border-gray-300 rounded-lg bg-gray-50 text-xs font-mono text-gray-700 overflow-hidden"
+                  className="flex-1 p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-xs font-mono text-gray-700 dark:text-gray-300 overflow-hidden"
                 />
               </div>
             </div>
 
             {/* Instruções */}
-            <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-4 mb-6">
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded-lg p-4 mb-6">
               <div className="flex items-start space-x-2">
-                <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                <AlertCircle className="w-5 h-5 text-govbr-yellow mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="font-bold text-yellow-900 mb-2">Como pagar:</p>
-                  <ol className="space-y-1 text-sm text-yellow-800">
+                  <p className="font-bold text-yellow-900 dark:text-yellow-200 mb-2">Como pagar:</p>
+                  <ol className="space-y-1 text-sm text-yellow-800 dark:text-yellow-300">
                     <li>1. Abra o aplicativo do seu banco</li>
                     <li>2. Acesse a área PIX</li>
                     <li>3. Escaneie o QR Code ou cole o código PIX</li>
@@ -240,18 +239,18 @@ const PagamentoPix = () => {
               </div>
             </div>
 
-            {/* Botões de Ação */}
+            {/* Botões */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Button
                 variant="outline"
-                className="h-12 border-2 border-gray-400 text-gray-700 hover:bg-gray-50 font-semibold"
+                className="h-12 border-2 border-gray-400 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-semibold"
               >
                 <FileText className="w-5 h-5 mr-2" />
                 Gerar DARF
               </Button>
               <Button
                 variant="outline"
-                className="h-12 border-2 border-gray-400 text-gray-700 hover:bg-gray-50 font-semibold"
+                className="h-12 border-2 border-gray-400 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 font-semibold"
               >
                 <Check className="w-5 h-5 mr-2" />
                 Verificar
@@ -260,8 +259,8 @@ const PagamentoPix = () => {
                 onClick={handleCopyPix}
                 className={`h-12 font-semibold transition-all duration-300 ${
                   copied
-                    ? 'bg-green-600 hover:bg-green-700'
-                    : 'bg-blue-600 hover:bg-blue-700'
+                    ? 'bg-govbr-green hover:bg-green-700'
+                    : 'bg-govbr-blue hover:bg-govbr-blue-dark'
                 } text-white`}
               >
                 {copied ? (
@@ -280,11 +279,10 @@ const PagamentoPix = () => {
           </div>
         </Card>
 
-        {/* Verificação Automática */}
-        <p className="text-center text-sm text-gray-600">
+        <p className="text-center text-sm text-gray-600 dark:text-gray-400">
           Verificação automática a cada 30 segundos
         </p>
-        <p className="text-center text-xs text-gray-500 mt-1">
+        <p className="text-center text-xs text-gray-500 dark:text-gray-500 mt-1">
           Última verificação: {new Date().toLocaleTimeString('pt-BR')}
         </p>
       </main>

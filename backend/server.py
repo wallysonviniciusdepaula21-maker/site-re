@@ -16,6 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 # Import routes
 from routes import cpf_routes, darf_routes, pix_routes, chat_routes, document_routes
+from services.chat_service import ChatService
 
 
 ROOT_DIR = Path(__file__).parent
@@ -28,6 +29,9 @@ db = client[os.environ['DB_NAME']]
 
 # Create the main app without a prefix
 app = FastAPI()
+
+# Inject db into ChatService for conversation persistence
+ChatService.set_db(db)
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")

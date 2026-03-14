@@ -1,7 +1,9 @@
 import time
 import random
 import logging
-from typing import List
+import uuid
+from typing import List, Optional
+from datetime import datetime, timezone
 from services.document_service import DocumentService
 
 logger = logging.getLogger(__name__)
@@ -116,9 +118,14 @@ DEFAULT_RESPONSE = {
 
 
 class ChatService:
+    _db = None
+
+    @classmethod
+    def set_db(cls, db):
+        cls._db = db
 
     @staticmethod
-    async def ask_question(question: str, max_sources: int = 5) -> dict:
+    async def ask_question(question: str, max_sources: int = 5, conversation_id: str = None) -> dict:
         start_time = time.time()
 
         # Simple keyword matching to simulate RAG retrieval
@@ -158,8 +165,99 @@ class ChatService:
             "processing_time": round(processing_time, 2),
         }
 
+        # Save message to conversation if conversation_id provided
+        if conversation_id and ChatService._db is not None:
+            try:
+                message = {
+                    "id": str(uuid.uuid4()),
+                    "question": question,
+                    "answer": result["answer"],
+                    "sources": formatted_sources,
+                    "processing_time": result["processing_time"],
+                    "created_at": datetime.now(timezone.utc).isoformat(),
+                }
+                await ChatService._db.conversations.update_one(
+                    {"id": conversation_id},
+                    {
+                        "$push": {"messages": message},
+                        "$set": {"updated_at": datetime.now(timezone.utc).isoformat()},
+                    }
+                )
+                result["conversation_id"] = conversation_id
+            except Exception as e:
+                logger.error(f"Failed to save message to conversation: {e}")
+
         logger.info(f"Chat query processed in {processing_time:.2f}s: {question[:50]}...")
         return result
+
+    @staticmethod
+    async def create_conversation(title: str = None) -> dict:
+        conv_id = str(uuid.uuid4())
+        now = datetime.now(timezone.utc).isoformat()
+        conversation = {
+            "id": conv_id,
+            "title": title or "Nova conversa",
+            "messages": [],
+            "created_at": now,
+            "updated_at": now,
+        }
+        if ChatService._db is not None:
+            await ChatService._db.conversations.insert_one(conversation)
+        return {"id": conv_id, "title": conversation["title"], "created_at": now, "updated_at": now}
+
+    @staticmethod
+    async def list_conversations() -> list:
+        if ChatService._db is None:
+            return []
+        cursor = ChatService._db.conversations.find(
+            {}, {"_id": 0, "id": 1, "title": 1, "messages": {"$slice": -1}, "created_at": 1, "updated_at": 1}
+        ).sort("updated_at", -1).limit(50)
+        conversations = await cursor.to_list(50)
+        result = []
+        for conv in conversations:
+            msgs = conv.get("messages", [])
+            msg_count_doc = await ChatService._db.conversations.find_one(
+                {"id": conv["id"]}, {"_id": 0, "messages": 1}
+            )
+            msg_count = len(msg_count_doc.get("messages", [])) if msg_count_doc else 0
+            last_preview = ""
+            if msgs:
+                last_preview = msgs[-1].get("question", "")[:80]
+            result.append({
+                "id": conv["id"],
+                "title": conv.get("title", ""),
+                "message_count": msg_count,
+                "last_message_preview": last_preview,
+                "created_at": conv.get("created_at", ""),
+                "updated_at": conv.get("updated_at", ""),
+            })
+        return result
+
+    @staticmethod
+    async def get_conversation(conversation_id: str) -> dict:
+        if ChatService._db is None:
+            return None
+        conv = await ChatService._db.conversations.find_one(
+            {"id": conversation_id}, {"_id": 0}
+        )
+        return conv
+
+    @staticmethod
+    async def delete_conversation(conversation_id: str) -> bool:
+        if ChatService._db is None:
+            return False
+        result = await ChatService._db.conversations.delete_one({"id": conversation_id})
+        return result.deleted_count > 0
+
+    @staticmethod
+    async def update_conversation_title(conversation_id: str, title: str) -> bool:
+        if ChatService._db is None:
+            return False
+        result = await ChatService._db.conversations.update_one(
+            {"id": conversation_id},
+            {"$set": {"title": title, "updated_at": datetime.now(timezone.utc).isoformat()}}
+        )
+        return result.modified_count > 0
 
     @staticmethod
     async def get_stats() -> dict:

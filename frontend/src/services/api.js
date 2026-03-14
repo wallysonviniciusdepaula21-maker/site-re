@@ -29,14 +29,38 @@ export const pixService = {
 };
 
 export const chatService = {
-  ask: async (question, maxSources = 5) => {
-    const response = await axios.post(`${API}/chat`, { question, max_sources: maxSources });
+  ask: async (question, maxSources = 5, conversationId = null) => {
+    const response = await axios.post(`${API}/chat`, {
+      question,
+      max_sources: maxSources,
+      conversation_id: conversationId,
+    });
     return response.data;
   },
   getStats: async () => {
     const response = await axios.get(`${API}/chat/stats`);
     return response.data;
-  }
+  },
+  createConversation: async (title = null) => {
+    const response = await axios.post(`${API}/chat/conversations`, { title });
+    return response.data;
+  },
+  listConversations: async () => {
+    const response = await axios.get(`${API}/chat/conversations`);
+    return response.data;
+  },
+  getConversation: async (conversationId) => {
+    const response = await axios.get(`${API}/chat/conversations/${conversationId}`);
+    return response.data;
+  },
+  deleteConversation: async (conversationId) => {
+    const response = await axios.delete(`${API}/chat/conversations/${conversationId}`);
+    return response.data;
+  },
+  updateTitle: async (conversationId, title) => {
+    const response = await axios.put(`${API}/chat/conversations/${conversationId}/title`, { title });
+    return response.data;
+  },
 };
 
 export const documentService = {
